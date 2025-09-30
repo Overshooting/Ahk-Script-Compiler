@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Script Runner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Script Runner</h1>
+
+    <!-- Dropdown to select scripts -->
+    <label for="scriptSelect">Choose a script:</label>
+    <select id="scriptSelect">
+        <!-- Options populated dynamically by renderer.js -->
+    </select>
+
+    <!-- Buttons -->
+    <div id="buttons">
+        <button id="runButton">Run Script</button>
+        <button id="stopButton">Stop Scripts</button>
+    </div>
+
+    <!-- Output area -->
+    <h2>Output:</h2>
+    <div id="outputArea" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll;">
+        <!-- Script output will appear here -->
+    </div>
+
+    <!-- Renderer script -->
+    <script src="renderer.js"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+{
+  "name": "app-electron",
+  "version": "0.1.0",
+  "description": "Electron-based UI for a local script runner (Python backend)",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron ./src/main.js",
+    "start:frontend": "ELECTRON_START_URL=http://localhost:3000 electron ./src/main.js",
+    "backend:dev": "python ../backend/runner.py",
+    "dev": "concurrently \"npm:backend:dev\" \"npm:start:frontend\"",
+    "package": "electron-builder --config electron-builder.yml",
+    "lint": "eslint --ext .js src/",
+    "format": "prettier --write \"src/**/*.{js,css,html}\""
+  },
+  "dependencies": {
+    "axios": "latest"
+  },
+  "devDependencies": {
+    "electron": "latest",
+    "electron-builder": "latest",
+    "electron-reload": "latest",
+    "concurrently": "latest",
+    "eslint": "latest",
+    "prettier": "latest"
+  },
+  "build": {
+    "appId": "com.example.scriptrunner",
+    "productName": "ScriptRunner",
+    "files": [
+      "src/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend/",
+        "to": "backend/",
+        "filter": ["**/*"]
+      }
+    ],
+    "win": {
+      "target": ["nsis", "zip"]
+    },
+    "mac": {
+      "target": ["dmg"]
+    }
+  }
+}
