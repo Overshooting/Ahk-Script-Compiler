@@ -1,32 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Script Runner</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AHK Script Runner</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>Script Runner</h1>
+  <div id="app">
+    <header>
+      <h1>AHK Script Runner</h1>
+    </header>
 
-    <!-- Dropdown to select scripts -->
-    <label for="scriptSelect">Choose a script:</label>
-    <select id="scriptSelect">
-        <!-- Options populated dynamically by renderer.js -->
-    </select>
+    <!-- Scripts List Section -->
+    <section id="scripts-section">
+      <h2>Available Scripts</h2>
+      <ul id="script-list">
+        <!-- Filled dynamically by renderer.js -->
+      </ul>
+    </section>
 
-    <!-- Buttons -->
-    <div id="buttons">
-        <button id="runButton">Run Script</button>
-        <button id="stopButton">Stop Scripts</button>
-    </div>
+    <!-- Controls Section -->
+    <section id="controls-section">
+      <button id="stop-all">Stop All Scripts</button>
+    </section>
 
-    <!-- Output area -->
-    <h2>Output:</h2>
-    <div id="outputArea" style="white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll;">
-        <!-- Script output will appear here -->
-    </div>
+    <!-- Output Section -->
+    <section id="output-section">
+      <h2>Script Output</h2>
+      <pre id="output"></pre>
+    </section>
+  </div>
 
-    <!-- Renderer script -->
-    <script src="renderer.js"></script>
+  <!-- Hook up frontend logic -->
+  <script src="renderer.js"></script>
 </body>
 </html>

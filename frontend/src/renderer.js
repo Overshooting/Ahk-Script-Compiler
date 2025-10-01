@@ -1,79 +1,84 @@
-// Grab DOM elements
-const scriptSelect = document.getElementById("scriptSelect");
-const runButton = document.getElementById("runButton");
-const stopButton = document.getElementById("stopButton");
-const outputArea = document.getElementById("outputArea");
+// ============================
+// Renderer Process (Frontend JS)
+// ============================
 
-/**
- * Load available scripts into the dropdown
- */
-async function loadScripts() {
-    const scripts = await window.api.listScripts(); // Calls main process via preload
+// Expects "window.api" exposed from preload.js
+// Handles: script list, running/stopping, displaying logs
 
-    // Clear existing options
-    scriptSelect.innerHTML = "";
+document.addEventListener("DOMContentLoaded", () => {
+  // ----------------------------
+  // DOM Elements
+  // ----------------------------
+  const scriptListDiv = document.getElementById("script-list");
+  const outputArea = document.getElementById("output");
+
+  // ----------------------------
+  // Utility: Append log messages
+  // ----------------------------
+  function appendLog(script, message) {
+    const logEntry = document.createElement("div");
+    logEntry.textContent = `[${script}] ${message}`;
+    outputArea.appendChild(logEntry);
+    outputArea.scrollTop = outputArea.scrollHeight; // auto-scroll
+  }
+
+  // ----------------------------
+  // Load available scripts
+  // ----------------------------
+  async function loadScripts() {
+    const scripts = await window.api.listScripts();
+
+    scriptListDiv.innerHTML = ""; // clear old entries
 
     if (scripts.length === 0) {
-        const option = document.createElement("option");
-        option.textContent = "No scripts found";
-        option.disabled = true;
-        scriptSelect.appendChild(option);
-        return;
+      scriptListDiv.textContent = "No .exe scripts found in backend/scripts/";
+      return;
     }
 
-    // Populate dropdown
     scripts.forEach((script) => {
-        const option = document.createElement("option");
-        option.value = script;
-        option.textContent = script;
-        scriptSelect.appendChild(option);
+      // Container for each script row
+      const container = document.createElement("div");
+      container.classList.add("script-item");
+
+      // Script name label
+      const label = document.createElement("span");
+      label.textContent = script;
+      label.classList.add("script-name");
+
+      // Run button
+      const runButton = document.createElement("button");
+      runButton.textContent = "Run";
+      runButton.classList.add("run-btn");
+      runButton.onclick = () => {
+        appendLog(script, "Script started");
+        window.api.runScript(script);
+      };
+
+      // Stop button
+      const stopButton = document.createElement("button");
+      stopButton.textContent = "Stop";
+      stopButton.classList.add("stop-btn");
+      stopButton.onclick = () => {
+        appendLog(script, "stop function wip");
+        window.api.stopScript(script);
+      };
+
+      container.appendChild(label);
+      container.appendChild(runButton);
+      container.appendChild(stopButton);
+      scriptListDiv.appendChild(container);
     });
-}
+  }
 
-/**
- * Append message to output area
- */
-function appendOutput(message) {
-    outputArea.textContent += message + "\n";
-    outputArea.scrollTop = outputArea.scrollHeight; // Auto-scroll to bottom
-}
+  // ----------------------------
+  // Listen for script output
+  // ----------------------------
+  window.api.onScriptOutput((data) => {
+    appendLog(data.script, data.message);
+  });
 
-/**
- * Run selected script
- */
-async function runScript() {
-    const selectedScript = scriptSelect.value;
-    if (!selectedScript) return;
-
-    appendOutput(`Running script: ${selectedScript}`);
-
-    try {
-        // Construct full path relative to backend/scripts folder
-        const scriptPath = `../../backend/scripts/${selectedScript}`;
-        await window.api.runScript(scriptPath);
-    } catch (error) {
-        appendOutput(`Error running script: ${error}`);
-    }
-}
-
-/**
- * Stop currently running script
- */
-function stopScript() {
-    window.api.stopScripts();
-    appendOutput("Stopped all running scripts.");
-}
-
-/**
- * Listen for script output from main process
- */
-window.api.onScriptOutput((message) => {
-    appendOutput(message);
+  // ----------------------------
+  // Initial load
+  // ----------------------------
+  loadScripts();
 });
-
-// Attach event listeners
-runButton.addEventListener("click", runScript);
-stopButton.addEventListener("click", stopScript);
-
-// Initial load
-loadScripts();

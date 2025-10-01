@@ -13,15 +13,15 @@
     "format": "prettier --write \"src/**/*.{js,css,html}\""
   },
   "dependencies": {
-    "axios": "latest"
+    "axios": "^1.12.2"
   },
   "devDependencies": {
+    "concurrently": "latest",
     "electron": "latest",
     "electron-builder": "latest",
     "electron-reload": "latest",
-    "concurrently": "latest",
-    "eslint": "latest",
-    "prettier": "latest"
+    "eslint": "^9.36.0",
+    "prettier": "^3.6.2"
   },
   "build": {
     "appId": "com.example.scriptrunner",
@@ -35,14 +35,21 @@
       {
         "from": "../backend/",
         "to": "backend/",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "win": {
-      "target": ["nsis", "zip"]
+      "target": [
+        "nsis",
+        "zip"
+      ]
     },
     "mac": {
-      "target": ["dmg"]
+      "target": [
+        "dmg"
+      ]
     }
   }
 }

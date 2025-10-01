@@ -9,15 +9,15 @@ contextBridge.exposeInMainWorld("api", {
    * Run a script at the given path
    * @param {string} scriptPath - Relative or absolute path to the script
    */
-  runScript: async (scriptPath) => {
-    return ipcRenderer.invoke("run-script", scriptPath);
+  runScript: (scriptPath) => {
+    return ipcRenderer.send("run-script", scriptPath);
   },
 
   /**
    * Stop all currently running scripts
    */
   stopScripts: () => {
-    return ipcRenderer.invoke("stop-scripts");
+    return ipcRenderer.send("stop-scripts");
   },
 
   /**

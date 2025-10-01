@@ -1,0 +1,286 @@
+#!/usr/bin/env python3
+"""
+backend/runner.py
+
+Small CLI utility to list, run, and stop executable scripts placed in
+the backend/scripts/ folder.
+
+Usage (examples):
+  # list available scripts
+  python runner.py list
+
+  # run a script (blocks and streams output)
+  python runner.py run example.exe
+
+  # run a script in the background (detached)
+  python runner.py run example.exe --detach
+
+  # stop currently running script
+  python runner.py stop
+
+  # check status
+  python runner.py status
+"""
+
+import os
+import sys
+import subprocess
+import threading
+import argparse
+import time
+from pathlib import Path
+from typing import List, Optional
+
+# Global process handle and lock to safely manage a single running process
+_current_proc: Optional[subprocess.Popen] = None
+_proc_lock = threading.Lock()
+
+
+def get_scripts_dir() -> Path:
+    """
+    Return the absolute path to the scripts directory.
+
+    It's computed relative to this file:
+      <project-root>/backend/scripts
+
+    Using Path makes it robust across platforms.
+    """
+    this_dir = Path(__file__).resolve().parent  # backend/
+    scripts_dir = this_dir / "scripts"
+
+    print(f"Scripts directory: {scripts_dir}")
+
+    return scripts_dir
+
+
+def is_executable_file(p: Path) -> bool:
+    """
+    Decide whether a Path is an executable script we should expose.
+
+    - On Windows: treat common executable extensions (.exe, .bat, .cmd).
+    - On Unix: check os.X_OK (executable bit).
+    """
+    if os.name == "nt":
+        return p.suffix.lower() in {".exe", ".bat", ".cmd"}
+    else:
+        return p.is_file() and os.access(str(p), os.X_OK)
+
+
+def list_scripts() -> List[str]:
+    """
+    Return list of filenames (strings) of executable scripts found in
+    the scripts directory. If the directory doesn't exist, return an empty list.
+    """
+    scripts_dir = get_scripts_dir()
+    if not scripts_dir.exists():
+        return []
+
+    files = []
+    for child in scripts_dir.iterdir():
+        if is_executable_file(child):
+            files.append(child.name)
+    files.sort()
+    return files
+
+
+def _stream_subprocess_output(proc: subprocess.Popen) -> None:
+    """
+    Internal helper: read stdout and stderr from the subprocess line-by-line
+    and forward them to this process' stdout/stderr. Runs in separate threads.
+
+    We do line-based reads to avoid buffering issues and to allow "live" updates.
+    """
+    def _reader(stream, forward):
+        try:
+            for line in iter(stream.readline, ""):
+                if not line:
+                    break
+                forward(line.rstrip("\n"))
+        except Exception:
+            pass
+        finally:
+            try:
+                stream.close()
+            except Exception:
+                pass
+
+    threads = []
+    if proc.stdout:
+        t_out = threading.Thread(target=_reader, args=(proc.stdout, lambda s: print(s, flush=True)))
+        t_out.daemon = True
+        t_out.start()
+        threads.append(t_out)
+
+    if proc.stderr:
+        t_err = threading.Thread(target=_reader, args=(proc.stderr, lambda s: print(f"ERR: {s}", flush=True)))
+        t_err.daemon = True
+        t_err.start()
+        threads.append(t_err)
+
+    # threads are daemon threads; the parent can continue and wait on proc
+    # The calling code typically does proc.wait() to block until exit.
+
+
+def run_script(script_name: str, detach: bool = False, use_cmd_wrapper: bool = False) -> int:
+    """
+    Start the script with the provided filename (must be inside backend/scripts).
+    - If detach is False: this function blocks until the child process exits,
+      streaming stdout/stderr to the console and returning the exit code.
+    - If detach is True: starts the process and returns the PID immediately.
+
+    If use_cmd_wrapper is True (useful for WSL launching Windows .exe via cmd.exe),
+    the command will be wrapped with ['cmd.exe', '/c', '<full_path>'].
+
+    Raises FileNotFoundError if the file doesn't exist.
+    """
+    global _current_proc
+
+    scripts_dir = get_scripts_dir()
+    target = scripts_dir / script_name
+    if not target.exists():
+        raise FileNotFoundError(f"Script not found: {target}")
+
+    # Build the command list
+    if os.name == "nt" or not use_cmd_wrapper:
+        cmd = [str(target)]
+    else:
+        # On Unix/WSL, if the target is a Windows .exe and you want to run it via cmd.exe
+        # you may set use_cmd_wrapper=True so we call the Windows cmd.
+        cmd = ["cmd.exe", "/c", str(target)]
+
+    # Acquire lock and ensure only one managed process at a time
+    with _proc_lock:
+        if _current_proc is not None:
+            # If a process is already running, we choose to stop it first.
+            try:
+                _current_proc.terminate()
+                _current_proc.wait(timeout=5)
+            except Exception:
+                try:
+                    _current_proc.kill()
+                except Exception:
+                    pass
+            _current_proc = None
+
+        # Start the subprocess. shell=False is safer; use shell=True only if necessary.
+        proc = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            stdin=subprocess.DEVNULL,
+            bufsize=1,
+            universal_newlines=True,
+            shell=False
+        )
+
+        _current_proc = proc
+
+    # Start streaming threads
+    _stream_subprocess_output(proc)
+
+    if detach:
+        # Return immediately with PID; caller is responsible for later stopping via stop_script()
+        return proc.pid
+
+    # Blocking wait until exit and return exit code
+    try:
+        exit_code = proc.wait()
+        return exit_code
+    finally:
+        with _proc_lock:
+            if _current_proc is proc:
+                _current_proc = None
+
+
+def stop_script(graceful_timeout: float = 5.0) -> bool:
+    """
+    Stop the currently managed process (if any).
+    - Try terminate() first, wait up to graceful_timeout seconds.
+    - If still alive, call kill().
+    Returns True if there was a process to stop, False otherwise.
+    """
+    global _current_proc
+    with _proc_lock:
+        if _current_proc is None:
+            return False
+        proc = _current_proc
+
+    # Try graceful termination
+    try:
+        proc.terminate()
+    except Exception:
+        pass
+
+    # Wait for it to exit
+    try:
+        proc.wait(timeout=graceful_timeout)
+    except Exception:
+        # Force kill
+        try:
+            proc.kill()
+        except Exception:
+            pass
+    finally:
+        with _proc_lock:
+            if _current_proc is proc:
+                _current_proc = None
+    return True
+
+
+def status() -> str:
+    """
+    Return human-readable status describing whether a process is running,
+    and its PID if so.
+    """
+    with _proc_lock:
+        if _current_proc is None:
+            return "idle"
+        else:
+            pid = _current_proc.pid
+            return f"running (pid={pid})"
+
+
+def _cli():
+    parser = argparse.ArgumentParser(prog="backend/runner.py", description="Manage backend scripts")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+
+    sub.add_parser("list", help="List available scripts in backend/scripts")
+
+    run_p = sub.add_parser("run", help="Run a script by filename")
+    run_p.add_argument("script", help="Filename of script inside backend/scripts")
+    run_p.add_argument("--detach", action="store_true", help="Start script and return immediately")
+    run_p.add_argument("--use-cmd-wrapper", action="store_true",
+                       help="On WSL: run Windows .exe via cmd.exe (cmd.exe /c <path>)")
+
+    sub.add_parser("stop", help="Stop currently running script (if any)")
+    sub.add_parser("status", help="Show current runner status")
+
+    args = parser.parse_args()
+
+    try:
+        if args.cmd == "list":
+            scripts = list_scripts()
+            for s in scripts:
+                print(s)
+        elif args.cmd == "run":
+            print(f"Starting: {args.script}")
+            code_or_pid = run_script(args.script, detach=args.detach, use_cmd_wrapper=args.use_cmd_wrapper)
+            if args.detach:
+                print(f"Detached, pid={code_or_pid}")
+            else:
+                print(f"Process exited with code {code_or_pid}")
+        elif args.cmd == "stop":
+            stopped = stop_script()
+            print("Stopped" if stopped else "No process to stop")
+        elif args.cmd == "status":
+            print(status())
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(2)
+    except Exception as e:
+        print(f"Unexpected error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    _cli()
