@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ----------------------------
   const scriptListDiv = document.getElementById("script-list");
   const outputArea = document.getElementById("output");
+  const stopAllButton = document.getElementById("stop-all-btn");
 
   // ----------------------------
   // Utility: Append log messages
@@ -49,18 +50,28 @@ document.addEventListener("DOMContentLoaded", () => {
       const runButton = document.createElement("button");
       runButton.textContent = "Run";
       runButton.classList.add("run-btn");
-      runButton.onclick = () => {
-        appendLog(script, "Script started");
-        window.api.runScript(script);
+      runButton.onclick = async () => {
+        appendLog(script, "Starting...");
+        try {
+          const result = await window.api.runScript(script);
+          appendLog(script, result?.message || "Script started");
+        } catch (err) {
+          appendLog(script, `Failed to start: ${err.message}`);
+        }
       };
 
       // Stop button
       const stopButton = document.createElement("button");
       stopButton.textContent = "Stop";
       stopButton.classList.add("stop-btn");
-      stopButton.onclick = () => {
-        appendLog(script, "stop function wip");
-        window.api.stopScript(script);
+      stopButton.onclick = async () => {
+        appendLog(script, "Stopping...");
+        try {
+          const result = await window.api.stopScript(script);
+          appendLog(script, result?.message || "Script stopped");
+        } catch (err) {
+          appendLog(script, `Failed to stop: ${err.message}`);
+        }
       };
 
       container.appendChild(label);
@@ -69,6 +80,19 @@ document.addEventListener("DOMContentLoaded", () => {
       scriptListDiv.appendChild(container);
     });
   }
+
+  // ----------------------------
+  // Stop all scripts
+  // ----------------------------
+  stopAllButton?.addEventListener("click", async () => {
+    appendLog("ALL", "Stopping all running AHK scripts...");
+    try {
+      const result = await window.api.stopScripts();
+      appendLog("ALL", result?.message || "All scripts stopped.");
+    } catch (err) {
+      appendLog("ALL", `Failed to stop all scripts: ${err.message}`);
+    }
+  });
 
   // ----------------------------
   // Listen for script output

@@ -100,20 +100,44 @@ ipcMain.on("run-script", (event, scriptName) => {
 // IPC: Stop a script
 // ----------------------------
 ipcMain.on("stop-script", (event, scriptName) => {
-  if (runningProcesses[scriptName]) {
-    runningProcesses[scriptName].kill();
+  const process = runningProcesses[scriptName];
+  if (process) {
+    process.kill();
     delete runningProcesses[scriptName];
-
-    event.sender.send("script-output", {
-      script: scriptName,
-      message: `Script "${scriptName}" was stopped.`,
-    });
+    event.sender.send("script-output", `Stopped script: ${scriptName}`);
   } else {
-    event.sender.send("script-output", {
-      script: scriptName,
-      message: `No running process found for "${scriptName}".`,
+    // Fall back to Windows process kill (for detached AHK scripts)
+    exec(`taskkill /IM "${scriptName}" /F`, (error) => {
+      if (error) {
+        console.error(`Failed to kill ${scriptName}:`, error.message);
+      } else {
+        console.log(`Force-stopped ${scriptName}`);
+        event.sender.send("script-output", `Force-stopped ${scriptName}`);
+      }
     });
   }
+});
+
+// ----------------------------
+// Stop all scripts
+// ----------------------------
+ipcMain.handle("stop-scripts", (event) => {
+  console.log("Stopping all AutoHotkey scripts...");
+  exec("taskkill /IM AutoHotkey.exe /F", (error, stdout, stderr) => {
+    if (error) {
+      console.error("Failed to kill AutoHotkey:", error.message);
+      event.sender.send("script-output", "Error: Unable to stop all scripts.");
+    } else {
+      console.log("All AutoHotkey processes terminated.");
+      event.sender.send(
+        "script-output",
+        "All running scripts have been stopped."
+      );
+    }
+  });
+  // Also kill any tracked child processes
+  Object.values(runningProcesses).forEach((proc) => proc.kill());
+  runningProcesses = {};
 });
 
 // ----------------------------

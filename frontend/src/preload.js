@@ -14,6 +14,14 @@ contextBridge.exposeInMainWorld("api", {
   },
 
   /**
+   * Stop a single script by name
+   * @param {string} scriptName - The script filename (e.g., "test.exe")
+   */
+  stopScript: (scriptName) => {
+    ipcRenderer.send("stop-script", scriptName);
+  },
+
+  /**
    * Stop all currently running scripts
    */
   stopScripts: () => {

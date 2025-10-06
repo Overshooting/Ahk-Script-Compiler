@@ -1,51 +1,109 @@
-/* General body styles */
 body {
-    font-family: Courier, monospace;
-    background-color: #f5f5f5;
-    color: #333;
-    margin: 20px;
+  font-family: Courier, monospace;
+  background-color: #f5f5f5;
+  color: #333;
+  margin: 20px;
 }
 
 /* Header */
 h1 {
-    text-align: center;
-    margin-bottom: 20px;
-    font-family: Courier, monospace;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-/* Buttons container */
-#buttons {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+/* ===========================
+   Scripts List
+=========================== */
+#script-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
 }
 
-/* Buttons style */
+.script-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.script-name {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* ===========================
+   Buttons
+=========================== */
 button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    transition: all 0.2s ease;
-    font-family: Courier, monospace;
+  padding: 6px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  transition: background-color 0.2s ease;
+  font-family: Courier, monospace;
+  margin-left: 5px;
 }
 
 button:hover {
-    background-color: #e0e0e0;
+  background-color: #e0e0e0;
 }
 
-/* Output area */
-#outputArea {
-    width: 100%;
-    max-width: 800px;
-    height: 300px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 10px;
-    background-color: #fff;
-    overflow-y: auto;
-    white-space: pre-wrap; /* preserves line breaks */
-    font-family: Courier, monospace;
+.run-btn {
+  color: #fff;
+  background-color: #4caf50;
+  border: none;
+}
+
+.run-btn:hover {
+  background-color: #45a049;
+}
+
+.stop-btn {
+  color: #fff;
+  background-color: #d9534f;
+  border: none;
+}
+
+.stop-btn:hover {
+  background-color: #c9302c;
+}
+
+#stop-all-btn {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #f44336;
+  border: none;
+  border-radius: 6px;
+}
+
+#stop-all-btn:hover {
+  background-color: #d32f2f;
+}
+
+/* ===========================
+   Output Log
+=========================== */
+#output {
+  width: 100%;
+  max-width: 900px;
+  height: 300px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  background-color: #111;
+  color: #0f0;
+  font-family: monospace;
+  font-size: 13px;
+  overflow-y: auto;
+  white-space: pre-wrap; /* keeps line breaks */
 }

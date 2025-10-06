@@ -1,39 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AHK Script Runner</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div id="app">
-    <header>
-      <h1>AHK Script Runner</h1>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AHK Script Runner</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <h1>AHK Script Runner</h1>
+      </header>
 
-    <!-- Scripts List Section -->
-    <section id="scripts-section">
-      <h2>Available Scripts</h2>
-      <ul id="script-list">
-        <!-- Filled dynamically by renderer.js -->
-      </ul>
-    </section>
+      <!-- Scripts List Section -->
+      <section id="scripts-section">
+        <h2>Available Scripts</h2>
+        <div id="script-list" class="script-list">
+          <!-- Filled dynamically by renderer.js -->
+        </div>
+      </section>
 
-    <!-- Controls Section -->
-    <section id="controls-section">
-      <button id="stop-all">Stop All Scripts</button>
-    </section>
+      <!-- Controls Section -->
+      <section id="controls-section">
+        <button id="stop-all-btn" class="stop-all-btn">Stop All Scripts</button>
+      </section>
 
-    <!-- Output Section -->
-    <section id="output-section">
-      <h2>Script Output</h2>
-      <pre id="output"></pre>
-    </section>
-  </div>
+      <!-- Output Section -->
+      <section id="output-section">
+        <h2>Script Output</h2>
+        <div id="output" class="output-log"></div>
+      </section>
+    </div>
 
-  <!-- Hook up frontend logic -->
-  <script src="renderer.js"></script>
-</body>
+    <!-- Hook up frontend logic -->
+    <script src="renderer.js"></script>
+  </body>
 </html>
