@@ -5,15 +5,11 @@ body {
   margin: 20px;
 }
 
-/* Header */
 h1 {
   text-align: center;
   margin-bottom: 20px;
 }
 
-/* ===========================
-   Scripts List
-=========================== */
 #script-list {
   display: flex;
   flex-direction: column;
@@ -36,9 +32,6 @@ h1 {
   font-size: 14px;
 }
 
-/* ===========================
-   Buttons
-=========================== */
 button {
   padding: 6px 14px;
   font-size: 14px;
@@ -65,34 +58,21 @@ button:hover {
   background-color: #45a049;
 }
 
-.stop-btn {
-  color: #fff;
-  background-color: #d9534f;
-  border: none;
-}
-
-.stop-btn:hover {
-  background-color: #c9302c;
-}
-
-#stop-all-btn {
+.script-status-btn {
   display: block;
   margin: 20px auto;
   padding: 10px 20px;
   font-size: 16px;
   color: #fff;
-  background-color: #f44336;
+  background-color: #1b76ff;
   border: none;
   border-radius: 6px;
 }
 
-#stop-all-btn:hover {
-  background-color: #d32f2f;
+.script-status-btn:hover {
+  background-color: #0066ff;
 }
 
-/* ===========================
-   Output Log
-=========================== */
 #output {
   width: 100%;
   max-width: 900px;
@@ -105,5 +85,5 @@ button:hover {
   font-family: monospace;
   font-size: 13px;
   overflow-y: auto;
-  white-space: pre-wrap; /* keeps line breaks */
+  white-space: pre-wrap;
 }

@@ -13,27 +13,23 @@
         <h1>AHK Script Runner</h1>
       </header>
 
-      <!-- Scripts List Section -->
       <section id="scripts-section">
         <h2>Available Scripts</h2>
-        <div id="script-list" class="script-list">
-          <!-- Filled dynamically by renderer.js -->
-        </div>
+        <div id="script-list" class="script-list"></div>
       </section>
 
-      <!-- Controls Section -->
       <section id="controls-section">
-        <button id="stop-all-btn" class="stop-all-btn">Stop All Scripts</button>
+        <button id="script-status-btn" class="script-status-btn">
+          List Scripts Status
+        </button>
       </section>
 
-      <!-- Output Section -->
       <section id="output-section">
         <h2>Script Output</h2>
         <div id="output" class="output-log"></div>
       </section>
     </div>
 
-    <!-- Hook up frontend logic -->
     <script src="renderer.js"></script>
   </body>
 </html>
