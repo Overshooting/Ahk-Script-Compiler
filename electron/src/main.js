@@ -3,8 +3,12 @@ const path = require("path");
 const { spawn } = require("child_process");
 const fs = require("fs");
 
-if (process.env.NODE_ENV !== "production") {
-  require("electron-reload")(__dirname);
+try {
+  if (process.env.NODE_ENV !== "production" && process.defaultApp) {
+    require("electron-reload")(__dirname);
+  }
+} catch (err) {
+  console.log("electron-reload disabled in production");
 }
 
 let runningProcesses = {};

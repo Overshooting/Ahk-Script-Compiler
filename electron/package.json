@@ -1,24 +1,32 @@
 {
-  "name": "app-electron",
+  "name": "ahk-script-runner",
   "version": "0.1.0",
-  "description": "Electron-based UI for a local script runner (Python backend)",
+  "description": "Electron-based script runner app for ahk scripts)",
   "main": "src/main.js",
   "scripts": {
-    "start": "electron ./src/main.js",
-    "start:frontend": "ELECTRON_START_URL=http://localhost:3000 electron ./src/main.js",
-    "backend:dev": "python ../backend/runner.py",
-    "dev": "concurrently \"npm:backend:dev\" \"npm:start:frontend\"",
-    "package": "electron-builder --config electron-builder.yml",
+    "start": "cross-env NODE_ENV=development electron-forge start",
+    "package": "cross-env NODE_ENV=production electron-forge package",
     "lint": "eslint --ext .js src/",
-    "format": "prettier --write \"src/**/*.{js,css,html}\""
+    "format": "prettier --write \"src/**/*.{js,css,html}\"",
+    "make": "cross-env NODE_ENV=production electron-forge make"
   },
   "dependencies": {
-    "axios": "^1.12.2"
+    "axios": "^1.12.2",
+    "electron-squirrel-startup": "^1.0.1"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.9.0",
+    "@electron-forge/maker-deb": "^7.9.0",
+    "@electron-forge/maker-squirrel": "^7.9.0",
+    "@electron-forge/maker-zip": "^7.9.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.9.0",
+    "@electron-forge/plugin-fuses": "^7.9.0",
+    "@electron/fuses": "^1.8.0",
     "concurrently": "latest",
+    "cross-env": "^10.1.0",
     "electron": "^38.2.0",
     "electron-builder": "latest",
+    "electron-forge": "^5.2.4",
     "electron-reload": "latest",
     "eslint": "^9.36.0",
     "prettier": "^3.6.2"
