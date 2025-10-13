@@ -1,9 +1,11 @@
 const { FusesPlugin } = require("@electron-forge/plugin-fuses");
 const { FuseV1Options, FuseVersion } = require("@electron/fuses");
+const path = require("path");
 
 module.exports = {
   packagerConfig: {
     asar: true,
+    extraResource: [path.resolve(__dirname, "../scriptstorage/scripts")],
   },
   rebuildConfig: {},
   makers: [
@@ -12,6 +14,8 @@ module.exports = {
       config: {
         name: "ahk_script_runner",
         authors: "aamel",
+        exe: "ahk_script_runner.exe",
+        setupExe: "AhkScriptRunnerSetup.exe",
       },
     },
 
@@ -21,12 +25,6 @@ module.exports = {
     },
   ],
   plugins: [
-    {
-      name: "@electron-forge/plugin-auto-unpack-natives",
-      config: {},
-    },
-    // Fuses are used to enable/disable various Electron functionality
-    // at package time, before code signing the application
     new FusesPlugin({
       version: FuseVersion.V1,
       [FuseV1Options.RunAsNode]: false,

@@ -1,7 +1,9 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
-const { spawn } = require("child_process");
+const os = require("os");
 const fs = require("fs");
+const { app, BrowserWindow, ipcMain } = require("electron");
+const { spawn } = require("child_process");
+const { get } = require("http");
 
 try {
   if (process.env.NODE_ENV !== "production" && process.defaultApp) {
@@ -13,9 +15,23 @@ try {
 
 let runningProcesses = {};
 
+//Establish base path
+function getBasePath() {
+  const userData = app.getPath("userData");
+  const scriptsDir = path.join(userData, "scriptstorage", "scripts");
+
+  if (!fs.existsSync(scriptsDir)) {
+    fs.mkdirSync(scriptsDir, { recursive: true });
+  }
+
+  return { scriptsDir };
+}
+
+module.exports = { getBasePath };
+
 // Find script path
 function resolveScriptPath(scriptName) {
-  const scriptsDir = path.join(__dirname, "../../scriptstorage/scripts");
+  const { scriptsDir } = getBasePath();
   const fullPath = path.join(scriptsDir, scriptName);
 
   if (!fs.existsSync(fullPath)) {
@@ -26,7 +42,7 @@ function resolveScriptPath(scriptName) {
 
 // List found scripts
 ipcMain.handle("list-scripts", () => {
-  const scriptsDir = path.join(__dirname, "../../scriptstorage/scripts");
+  const { scriptsDir } = getBasePath();
 
   if (!fs.existsSync(scriptsDir)) {
     console.log("Scripts folder not found:", scriptsDir);
@@ -80,6 +96,11 @@ ipcMain.handle("get-script-status", (event, scriptName) => {
   } else {
     return "Not Running";
   }
+});
+
+ipcMain.handle("open-script-folder", () => {
+  const { scriptsDir } = getBasePath();
+  require("electron").shell.openPath(scriptsDir);
 });
 
 // Create window

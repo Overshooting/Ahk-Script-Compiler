@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const scriptListDiv = document.getElementById("script-list");
   const outputArea = document.getElementById("output");
   const scriptListButton = document.getElementById("script-status-btn");
+  const openFolderButton = document.getElementById("open-folder-btn");
 
   function appendLog(script, message, isStatusList) {
     const logEntry = document.createElement("div");
@@ -32,6 +33,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   scriptListButton.addEventListener("click", listScriptStatus);
+
+  async function openScriptFolder() {
+    await window.api.openScriptFolder();
+  }
+
+  openFolderButton.addEventListener("click", openScriptFolder);
 
   async function loadScripts() {
     const scripts = await window.api.listScripts();

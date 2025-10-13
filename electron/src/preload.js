@@ -18,4 +18,8 @@ contextBridge.exposeInMainWorld("api", {
   getScriptStatus: (scriptName) => {
     return ipcRenderer.invoke("get-script-status", scriptName);
   },
+
+  openScriptFolder: () => {
+    return ipcRenderer.invoke("open-script-folder");
+  },
 });

@@ -10,6 +10,18 @@ h1 {
   margin-bottom: 20px;
 }
 
+.open-folder-btn {
+  padding: 10px 8px;
+  cursor: pointer;
+  background-color: #1b76ff;
+  color: #fff;
+  font-family: Courier, monospace;
+}
+
+.open-folder-btn:hover {
+  background-color: #0066ff;
+}
+
 #script-list {
   display: flex;
   flex-direction: column;
