@@ -107,6 +107,8 @@ ipcMain.handle("open-script-folder", () => {
 let mainWindow;
 
 function createWindow() {
+  if (require("electron-squirrel-startup")) app.quit();
+
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 700,

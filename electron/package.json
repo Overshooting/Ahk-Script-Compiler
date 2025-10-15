@@ -1,7 +1,8 @@
 {
   "name": "ahk-script-runner",
+  "productName": "AHK Script Runner",
   "version": "0.1.0",
-  "description": "Electron-based script runner app for ahk scripts)",
+  "description": "Electron-based script runner app for ahk scripts",
   "main": "src/main.js",
   "scripts": {
     "start": "cross-env NODE_ENV=development electron-forge start",

@@ -12,16 +12,10 @@ module.exports = {
     {
       name: "@electron-forge/maker-squirrel",
       config: {
-        name: "ahk_script_runner",
         authors: "aamel",
-        exe: "ahk_script_runner.exe",
-        setupExe: "AhkScriptRunnerSetup.exe",
+        setupIcon: path.resolve(__dirname, "src/willface.ico"),
+        createDesktopShortcut: true,
       },
-    },
-
-    {
-      name: "@electron-forge/maker-deb",
-      config: {},
     },
   ],
   plugins: [
